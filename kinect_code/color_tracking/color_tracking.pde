@@ -10,7 +10,7 @@ void setup()
  kinect = new SimpleOpenNI(this);
  kinect.enableRGB();
  
- trackColor = color (255,0,0);
+ trackColor = color (255,255,255);
  smooth ();
  
  currentFrame = createImage (640,480, RGB);
@@ -61,12 +61,13 @@ void draw()
  
 // We only consider the color found if its color distance is less than 10.
  // This threshold of 10 is arbitrary and you can adjust this number depending on how accurate you require the tracking to be.
- if (worldRecord < 10) {
- // Draw a circle at the tracked pixel
- fill(trackColor);
- strokeWeight(4.0);
- stroke(0);
- ellipse(closestX,closestY,16,16);
+ if (worldRecord < 5) {
+  // Draw a circle at the tracked pixel
+  fill(trackColor);
+  strokeWeight(4.0);
+  stroke(0);
+  ellipse(closestX,closestY,16,16);
+  println(closestX + ", " + closestY);
  }
 }
 
