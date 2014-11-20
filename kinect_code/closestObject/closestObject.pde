@@ -14,10 +14,11 @@ void setup()
   size(WIDTH, HEIGHT);
   kinect = new SimpleOpenNI(this);
   kinect.enableDepth();
+  smooth();
   
-  String portName = Serial.list()[5];
-  println(portName);
-  myPort = new Serial(this,portName,115200);
+  //String portName = Serial.list()[5];
+  //println(portName);
+  //myPort = new Serial(this,portName,115200);
 }
 
 void draw()
@@ -43,9 +44,7 @@ void draw()
   ellipse(closestX,closestY,15,15);
   //println(closestX + ", " + closestY + ", " + closestValue);
   
-  //float val = (1.0*closestY)/HEIGHT * 255;
-  //int val2 = (int)val;
-  //println(val2 + "--" + closestY);
+  /*
   if(DELAY % 10 == 0){
   if(closestY < (HEIGHT/2)){
     myPort.write('1');
@@ -54,4 +53,11 @@ void draw()
   }
   }
   DELAY = DELAY + 1;
+  */
+  int millimeters = DV[closestX + closestY*WIDTH];
+  float inches = millimeters / 25.4;
+  
+  println("(" + closestX +", " + closestY " + "): inches + "in -- " + millimeters + "mm");
+  
+  
 }
