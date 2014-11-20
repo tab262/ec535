@@ -1,0 +1,1 @@
+Found this website useful for kinect install instructions:  https://code.google.com/p/simple-openni/wiki/Installation
