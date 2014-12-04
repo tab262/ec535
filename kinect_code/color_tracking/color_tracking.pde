@@ -1,3 +1,4 @@
+// Found at http://zugiduino.wordpress.com/2012/12/30/kinect-color-tracking/
 import SimpleOpenNI.*;
 SimpleOpenNI kinect;
 // Frame
