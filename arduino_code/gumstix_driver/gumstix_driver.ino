@@ -174,7 +174,7 @@ void setup()
 
 void loop()
 { 
-  Serial.println("LOOP");
+  
 }
 
 void timerISR()
@@ -247,8 +247,14 @@ void timerISR()
 
   sendCommand(throttle, yaw, pitch);
   Serial.println("TIMER");
-
+  Serial.print("Throttle:  ");
+  Serial.print(throttle);
+  Serial.print("\t");
+  Serial.print("Pitch:  ");
+  Serial.print(pitch);
+  Serial.print("\t");
+  Serial.print("Yaw:  ");
+  Serial.println(yaw);
+  
 
 }
-
-
