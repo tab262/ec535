@@ -1,10 +1,3 @@
-#define THROTTLE_INCDEC 29 //pin for throttle: use with INC or DEC
-#define THROTTLE_RATE 30 //pin for throttle rate: use with MULT5 or MULT1
-#define YAW_INCDEC 16 //pin for yaw: use with INC or DEC
-#define YAW_RATE 17 //pin for yaw rate: use with MULT5 or MULT1
-#define PITCH_INCDEC 117 //pin for pitch: use with INC or DEC
-#define PITCH_RATE 118 //pin for pitch rate: use with MULT5 or MULT1
-#define ARDUINO_CMD_REQ 31 //pin used by arduino to request new command/*Include the needed device drivers*/
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>     /* printk() */
@@ -49,11 +42,11 @@ int target_throttle = 0;
 #define THROTTLE_INCDEC 29 //pin for throttle: use with INC or DEC
 #define THROTTLE_RATE 30 //pin for throttle rate: use with MULT5 or MULT1
 
-#define YAW_INCDEC 16 //pin for yaw: use with INC or DEC
+#define YAW_INCDEC 101 //pin for yaw: use with INC or DEC
 #define YAW_RATE 17 //pin for yaw rate: use with MULT5 or MULT1
 
-#define PITCH_INCDEC 117 //pin for pitch: use with INC or DEC
-#define PITCH_RATE 118 //pin for pitch rate: use with MULT5 or MULT1
+#define PITCH_INCDEC 113 //pin for pitch: use with INC or DEC
+#define PITCH_RATE 28 //pin for pitch rate: use with MULT5 or MULT1
 
 #define ARDUINO_CMD_REQ 31 //pin used by arduino to request new command
 
@@ -69,7 +62,7 @@ static int arduino_comms_init(void);
 static void arduino_comms_exit(void);
 static ssize_t arduino_comms_proc_read(char *page, char **page_location, off_t offset, int page_length, int *eof, void *data);
 //static ssize_t write_2_proc(struct file *filp, const char __user *buff, unsigned long len, void *data);
-irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs);
+//irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs);
 void transmit(int new_pitch, int new_yaw, int new_throttle);
 
 /* Declaration of init and exit functions */
@@ -87,6 +80,15 @@ struct file_operations arduino_comms_fops = {
 //========================================================================
 //Function Definitions
 //========================================================================
+
+irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs)
+{
+     transmit(target_yaw, target_pitch, target_throttle);
+     return IRQ_HANDLED; //handler was correctly invoked and delt with
+}
+
+
+
 /* The init function called when module is installed */
 static int arduino_comms_init(void){
      int result;         //temp status var
@@ -109,21 +111,26 @@ static int arduino_comms_init(void){
           proc_entry->read_proc = arduino_comms_proc_read;
           proc_entry->owner = THIS_MODULE;
      }
-
+     
      //IO pin setup
      gpio_direction_output(THROTTLE_INCDEC,0);//set pin "THROTTLE_INCDEC" as output w/ init val of 0
      gpio_direction_output(THROTTLE_RATE,0);  //set pin "THROTTLE_RATE" as output w/ init val of 0
+
+     
      gpio_direction_output(YAW_INCDEC, 0);
      gpio_direction_output(YAW_RATE, 0);
+     
+     
      gpio_direction_output(PITCH_INCDEC, 0);
      gpio_direction_output(PITCH_RATE, 0);
-
-     gpio_direction_input(ARDUINO_CMD_REQ);  //set pin used by arduino to request new command as input
+     
+     //gpio_direction_input(ARDUINO_CMD_REQ);  //set pin used by arduino to request new command as input
+     pxa_gpio_mode(ARDUINO_CMD_REQ | GPIO_IN);
      cmd_req_irq = IRQ_GPIO(ARDUINO_CMD_REQ);//get the irq number corresponding to the gpio_number
-     //set_irq_type(cmd_req_irq, IRQT_RISING); //interupt triggered on rising edge (0 to 1 signal transition)
+     set_irq_type(cmd_req_irq, IRQT_RISING); //interupt triggered on rising edge (0 to 1 signal transition)
      //register the gpio interrupt
-     result = request_irq(cmd_req_irq, &request_cmd_cb, SA_INTERRUPT | SA_TRIGGER_RISING, "arduino_intrupt", NULL);
-     if(result != 0){
+     //SA_INTERRUPT | SA_TRIGGER_RISING
+     if(request_irq(cmd_req_irq, &request_cmd_cb, 0, "ARDUINO_CMD_REQ", NULL) != 0){
           printk(KERN_ALERT "Interupt for Arduino command requests not aquired\n");
           goto fail;
      }
@@ -227,67 +234,68 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
      //changes in yaw
      diff_yaw = new_yaw - arduino_yaw;
      if(diff_yaw >=  0){
-          gpio_set_value(YAW_INCDEC, INC);
+       gpio_set_value(YAW_INCDEC, INC);
           if(diff_yaw >= 5){
-               gpio_set_value(YAW_RATE, MULT5);
+	    gpio_set_value(YAW_RATE, MULT5);
                arduino_yaw += 5;
           }else{
-               gpio_set_value(YAW_RATE, MULT1);
+	    gpio_set_value(YAW_RATE, MULT1);
                arduino_yaw += 1;
           }
      }else if(diff_yaw < 0){
-          gpio_set_value(YAW_INCDEC, DEC);
+         gpio_set_value(YAW_INCDEC, DEC);
           if(diff_yaw <= -5){
-               gpio_set_value(YAW_RATE, MULT5);
+	             gpio_set_value(YAW_RATE, MULT5);
                arduino_yaw -= 5;
           }else{
-               gpio_set_value(YAW_RATE, MULT1);
+	    gpio_set_value(YAW_RATE, MULT1);
                arduino_yaw--;
           }
      }
 
      //changes in pitch
      diff_pitch = new_pitch - arduino_pitch;
+     
      if(diff_pitch >=  0){
-          gpio_set_value(PITCH_INCDEC, INC);
+       gpio_set_value(PITCH_INCDEC, INC);
           if(diff_pitch >= 5){
-               gpio_set_value(PITCH_RATE, MULT5);
-               arduino_pitch += 5;
+	    gpio_set_value(PITCH_RATE, MULT5);
+            arduino_pitch += 5;
           }else{
-               gpio_set_value(PITCH_RATE, MULT1);
+	    gpio_set_value(PITCH_RATE, MULT1);
                arduino_pitch += 1;
           }
      }else if(diff_pitch < 0){
-          gpio_set_value(PITCH_INCDEC, DEC);
+      gpio_set_value(PITCH_INCDEC, DEC);
           if(diff_pitch <= -5){
-               gpio_set_value(PITCH_RATE, MULT5);
+	    gpio_set_value(PITCH_RATE, MULT5);
                arduino_pitch -= 5;
           }else{
-               gpio_set_value(PITCH_RATE, MULT1);
+	    gpio_set_value(PITCH_RATE, MULT1);
                arduino_pitch--;
           }
      }
-
+     
 
      //changes in throttle
      diff_throttle = new_throttle - arduino_throttle;
      if(diff_throttle >=  0){
-          gpio_set_value(THROTTLE_INCDEC, INC);
+       gpio_set_value(THROTTLE_INCDEC, INC);
           if(diff_throttle >= 5){
-               gpio_set_value(THROTTLE_RATE, MULT5);
+	       gpio_set_value(THROTTLE_RATE, MULT5);
                arduino_throttle += 5;
           }else{
-               gpio_set_value(THROTTLE_RATE, MULT1);
-               arduino_throttle += 1;
+	    gpio_set_value(THROTTLE_RATE, MULT1);
+	    arduino_throttle += 1;
           }
      }else if(diff_throttle < 0){
-          gpio_set_value(THROTTLE_INCDEC, DEC);
+       gpio_set_value(THROTTLE_INCDEC, DEC);
           if(diff_throttle <= -5){
-               gpio_set_value(THROTTLE_RATE, MULT5);
-               arduino_throttle -= 5;
+	    gpio_set_value(THROTTLE_RATE, MULT5);
+	    arduino_throttle -= 5;
           }else{
-               gpio_set_value(THROTTLE_RATE, MULT1);
-               arduino_throttle--;
+	    gpio_set_value(THROTTLE_RATE, MULT1);
+	    arduino_throttle--;
           }
      }
      //printk(KERN_INFO "YAW: %d\t PITCH:  %d\t THROTTLE:  %d\n",
@@ -296,10 +304,4 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
 
 //------------------------------------------------------------------------
 /* Callback function for when the ARUINO_CMD_REG pin goes high*/
-
-irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs)
-{
-     transmit(target_yaw, target_pitch, target_throttle);
-     return IRQ_HANDLED; //handler was correctly invoked and delt with
-}
 
