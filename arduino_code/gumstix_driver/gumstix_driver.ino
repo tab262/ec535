@@ -6,7 +6,7 @@
 #define MODULATED 1
 int DELAY = 0; 
 const int IR_PIN = 3;
-const int GUMSTIX_PIN 6;
+const int GUMSTIX_PIN = 6;
 
 const int THROTTLE_INCDEC_PIN = 13;
 const int THROTTLE_RATE_PIN = 12;
@@ -197,7 +197,7 @@ void timerISR()
    */
   
   digitalWrite(GUMSTIX_PIN, HIGH); //request new cmd data
-  delayMicroseconds(5); //give the gumstix 5 us to respond (hopefully won't mess things up)
+  delayMicroseconds(10); //give the gumstix 5 us to respond (hopefully won't mess things up)
   
   //set the throttle
   if(digitalRead(THROTTLE_INCDEC_PIN)){
@@ -253,8 +253,10 @@ void timerISR()
     }
   }
 
+  digitalWrite(GUMSTIX_PIN, LOW); //request new cmd data
+
   sendCommand(throttle, yaw, pitch);
-  Serial.println("TIMER");
+  //Serial.println("TIMER");
   Serial.print("Throttle:  ");
   Serial.print(throttle);
   Serial.print("\t");
