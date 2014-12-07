@@ -13,16 +13,16 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
                     "QSlider::handle:orientation {"
                     "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #dde4e6, stop:1 #ecf0f1);"
                     "border: 1px solid #5c5c5c;"
-                    "width: 85px;"
-                    "height: 38px;"
+                    "width: 45px;"
+                    "height: 10px;"
                     "margin: -2px 0;"
-                    "border-radius: 30px;}"
+                    "border-radius: 15px;}"
 
                     "QSlider::groove:orientation {"
                     "border: 1px solid #999999;"
                     "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4aa3df, stop:1 #5faee3);"
-                    "height: 95px;"
-                    "width: 900px;"
+                    "height: 35px;"
+                    //"width: 90px;"
                     "margin: 0 0 0 0;}"
                     );
     else
@@ -30,15 +30,16 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
                     "QSlider::handle:orientation {"
                     "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #dde4e6, stop:1 #ecf0f1);"
                     "border: 1px solid #5c5c5c;"
-                    "width: 38px;"
-                    "height: 85;"
+                    //"width: 60px;"
+                    "height: 60;"
                     "margin: -2px 0;"
-                    "border-radius: 30px;}"
+                    "border-radius: 20px;}"
 
                     "QSlider::groove:orientation {"
                     "border: 1px solid #999999;"
                     "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4aa3df, stop:1 #5faee3);"
-                    "height: 545px;"
+                    "height: 150px;"
+            //"width: 60px;"
                     "margin: 0 0 0 0;}"
                     );
 
