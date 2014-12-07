@@ -25,19 +25,19 @@ Window::Window()
 
     stackedWidget = new QStackedWidget;
     stackedWidget->setStyleSheet("background-color: #3498db;"
-                                 "width: 150px;"
+                                 "width: 60px;"
                                  );
     stackedWidget->addWidget(verticalSliders);
     stackedWidget->addWidget(horizontalSliders);
     stackedWidget2 = new QStackedWidget;
     stackedWidget2->setStyleSheet("background-color: #3498db;"
-                                  "width: 150px;"
+                                  "width: 60px;"
                                   );
     stackedWidget2->addWidget(verticalSliders2);
     stackedWidget2->addWidget(horizontalSliders2);
     stackedWidget3 = new QStackedWidget;
     stackedWidget3->setStyleSheet("background-color: #3498db;"
-                                  "height: 100px;");
+                                  "height: 40px;");
     stackedWidget3->addWidget(horizontalSliders3);
     stackedWidget3->addWidget(verticalSliders3);
 
@@ -90,14 +90,12 @@ Window::Window()
 
 void Window::writeValues()
 {
-  
     QFile file("/dev/arduino_comms");
     //    QFile file("/users/mmd1080/Desktop/535project/sample2.txt");
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
-    out << "m " << this->leftRight << " " << this->frontBack << " " << this->upDown ;
+    out << "m," << this->leftRight << "," << this->frontBack << "," << this->upDown ;
     file.close();
-  
 }
 
 void Window::updateUpDown(int value)
@@ -124,7 +122,7 @@ void Window::createControls(const QString &title)
     controlsGroup->setStyleSheet("background-color: #3498db;");
 
     QFont font;
-    font.setPointSize(100);
+    font.setPointSize(20);
     font.setBold(true);
 
     minimumLabel = new QLabel(tr("Minimum value:"));
@@ -168,13 +166,16 @@ void Window::createControls(const QString &title)
     QPalette* palette = new QPalette();
     palette->setColor(QPalette::Text,Qt::white);
 
+int height = 35;
+int width = 60;
+
     valueSpinBox = new QSpinBox;
     valueSpinBox->setStyleSheet("background-color: #3498db");
     valueSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
     valueSpinBox->setRange(0, 127);
     valueSpinBox->setSingleStep(1);
-    valueSpinBox->setFixedHeight(100);
-    valueSpinBox->setFixedWidth(190);
+    valueSpinBox->setFixedHeight(height);
+    valueSpinBox->setFixedWidth(width);
     valueSpinBox->setFont(font);
     valueSpinBox->setPalette(*palette);
 
@@ -183,8 +184,8 @@ void Window::createControls(const QString &title)
     valueSpinBox2->setButtonSymbols(QAbstractSpinBox::NoButtons);
     valueSpinBox2->setRange(-63, 63);
     valueSpinBox2->setSingleStep(1);
-    valueSpinBox2->setFixedHeight(100);
-    valueSpinBox2->setFixedWidth(190);
+    valueSpinBox2->setFixedHeight(height);
+    valueSpinBox2->setFixedWidth(width);
     valueSpinBox2->setFont(font);
     valueSpinBox2->setPalette(*palette);
 
@@ -193,8 +194,8 @@ void Window::createControls(const QString &title)
     valueSpinBox3->setButtonSymbols(QAbstractSpinBox::NoButtons);
     valueSpinBox3->setRange(-63, 63);
     valueSpinBox3->setSingleStep(1);
-    valueSpinBox3->setFixedHeight(100);
-    valueSpinBox3->setFixedWidth(190);
+    valueSpinBox3->setFixedHeight(height);
+    valueSpinBox3->setFixedWidth(width);
     valueSpinBox3->setFont(font);
     valueSpinBox3->setPalette(*palette);
 
