@@ -10,8 +10,9 @@
 #include <linux/fcntl.h>      /* O_ACCMODE not sure what this is */
 #include <asm/uaccess.h>      /* copy from/to user */
 #include <asm/gpio.h>         /* gpio functionality */
-#include <linux/jiffies.h>    /* jiffies and their conversions */
-
+#include <asm-arm/arch/hardware.h> /* macros and gpio interupts */
+#include <linux/interrupt.h>  /* gpio interupts */
+#include <linux/irq.h>        /* set_irq_type */
 
 MODULE_LICENSE("Dual BSD/GPL");
 MODULE_AUTHOR("Jonathan Hirokawa");
@@ -22,7 +23,6 @@ MODULE_AUTHOR("Jonathan Hirokawa");
 static int arduino_comms_major = 61;         //major number for registering this module
 struct fasync_struct *async_queue;           //for async reading
 static struct proc_dir_entry *proc_entry;    //obj that holds the proc entry
-static struct timer_list transmit_timer;     //pins must stay on long enough to be read
 
 int arduino_yaw = 0;              //these vars hold the arduino values
 int arduino_pitch = 0;            //ie. what the kernel thinks the arduino
@@ -31,8 +31,6 @@ int arduino_throttle = 0;         //has currently
 int target_yaw = 0;           //these values hold the target control params
 int target_pitch = 0;         //that we're trying to get to
 int target_throttle = 0;
-
-int delay = 250;              //frequency at which to send cmnds to arduino
 
 #define MANUAL 'm'            //specifier for manual control
 #define AUTO 'a'              //specifier for auto pilot
@@ -51,6 +49,8 @@ int delay = 250;              //frequency at which to send cmnds to arduino
 #define PITCH_INCDEC 117      //pin for pitch:  use with INC or DEC
 #define PITCH_RATE 118        //pin for pitch rate:  use with MULT5 or MULT1
 
+#define ARDUINO_CMD_REQ 31    //pin used by arduino to request new command
+
 #define DEBUG 0
 //========================================================================
 //Function Declarations
@@ -63,8 +63,7 @@ static int arduino_comms_init(void);
 static void arduino_comms_exit(void);
 static ssize_t arduino_comms_proc_read(char *page, char **page_location, off_t offset, int page_length, int *eof, void *data);
 //static ssize_t write_2_proc(struct file *filp, const char __user *buff, unsigned long len, void *data);
-static void transmit_timer_callback(unsigned long data);
-
+irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs);
 void transmit(int new_pitch, int new_yaw, int new_throttle);
 
 /* Declaration of init and exit functions */
@@ -84,7 +83,8 @@ struct file_operations arduino_comms_fops = {
 //========================================================================
 /* The init function called when module is installed */
 static int arduino_comms_init(void){
-     int result;    //temp status var
+     int result;         //temp status var
+     int cmd_req_irq;    //the irq number associated with the gpio number
 
      /* Attempt to register the device */
      result = register_chrdev(arduino_comms_major, "arduino_comms", &arduino_comms_fops);
@@ -95,7 +95,7 @@ static int arduino_comms_init(void){
      }
 
      proc_entry = create_proc_entry("arduino_comms", 0644, NULL);
-     if(proc_entry ==NULL){
+     if(proc_entry == NULL){
           printk(KERN_ALERT "Couldn't create proc entry\n");
           result = -ENOMEM;
      }else{
@@ -112,19 +112,30 @@ static int arduino_comms_init(void){
      gpio_direction_output(PITCH_INCDEC, 0);
      gpio_direction_output(PITCH_RATE, 0);
 
-     //set up the timer
-     setup_timer(&transmit_timer, transmit_timer_callback, 0);
+     gpio_direction_input(ARDUINO_CMD_REQ);  //set pin used by arduino to request new command as input
+     cmd_req_irq = IRQ_GPIO(ARDUINO_CMD_REQ);//get the irq number corresponding to the gpio_number
+     set_irq_type(cmd_req_irq, IRQT_RISING); //interupt triggered on rising edge (0 to 1 signal transition)
+     //register the gpio interrupt
+     result = request_irq(cmd_req_irq, &request_cmd_cb, SA_INTERRUPT, "arduino_intrupt", NULL);
+     if(result != 0){
+          printk(KERN_ALERT "Interupt for Arduino command requests not aquired\n");
+          goto fail;
+     }
 
      printk("arduino_comms loaded.\n");
 
      return 0;
+
+     fail:
+          arduino_comms_exit();
+          return result;
 }
 
 //------------------------------------------------------------------------
 /* The exit function (called when module is removed) */
 static void arduino_comms_exit(void){
      unregister_chrdev(arduino_comms_major, "arduino_comms");
-     del_timer(&transmit_timer);
+     free_irq(IRQ_GPIO(ARDUINO_CMD_REQ), NULL);
      remove_proc_entry("arduino_comms", &proc_root);
      printk(KERN_ALERT "Removing arduino_comms module\n");
 }
@@ -180,15 +191,9 @@ static ssize_t arduino_comms_write(struct file *filp, const char *buf, size_t co
      printk(KERN_INFO "PITCH:  %d\n", target_pitch);
      printk(KERN_INFO "THROTTLE:  %d\n", target_throttle);
 
-     //cancle the current timer to send cmd immediately
-     if(timer_pending(&transmit_timer)){
-          del_timer(&transmit_timer);
-     }
-
      if(mode == MANUAL){
           printk(KERN_INFO "MANUAL CONTROL\n");
           transmit(target_yaw, target_pitch, target_throttle);
-          mod_timer(&transmit_timer, jiffies + msecs_to_jiffies(delay));
 
      }else if(mode == AUTO){
           printk(KERN_INFO "WARNING:  AUTOPILOT NOT YET IMPLEMENTED\n");
@@ -207,13 +212,6 @@ static ssize_t arduino_comms_proc_read(char *page, char **page_location, off_t o
      return 0;
 }
 
-//------------------------------------------------------------------------
-/* Callback function for when our timer expires */
-static void transmit_timer_callback(unsigned long data)
-{
-     transmit(target_pitch, target_yaw, target_throttle);
-     mod_timer(&transmit_timer, jiffies + msecs_to_jiffies(delay));
-}
 //------------------------------------------------------------------------
 /* Helper function that transmits the commands via the GPIO pins as needed*/
 void transmit(int new_pitch, int new_yaw, int new_throttle)
@@ -286,5 +284,14 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
                arduino_throttle--;
           }
      }
+}
+
+//------------------------------------------------------------------------
+/* Callback function for when the ARUINO_CMD_REG pin goes high*/
+
+irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs)
+{
+     transmit(target_yaw, target_pitch, target_throttle);
+     return IRQ_HANDLED; //handler was correctly invoked and delt with
 }
 
