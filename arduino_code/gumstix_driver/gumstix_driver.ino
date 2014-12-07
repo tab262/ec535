@@ -6,6 +6,7 @@
 #define MODULATED 1
 int DELAY = 0; 
 const int IR_PIN = 3;
+const int GUMSTIX_PIN 6;
 
 const int THROTTLE_INCDEC_PIN = 13;
 const int THROTTLE_RATE_PIN = 12;
@@ -140,6 +141,10 @@ void setup()
   // Setup pin for outputting IR signal
   pinMode(IR_PIN, OUTPUT);
   digitalWrite(IR_PIN, LOW);
+  
+  // setup for the gumstix pin
+  pinMode(GUMSTIX_PIN, OUTPUT);
+  digitalWrite(GUMSTIX_PIN, LOW);
 
   // These pins server as control inputs. It will interpret
   // the signals as 'binary' inputs to perform certain commands
@@ -190,7 +195,10 @@ void timerISR()
    X_RATE:    1 = Times 5 Multiplier
    0 = Times 1 Multiplier
    */
-
+  
+  digitalWrite(GUMSTIX_PIN, HIGH); //request new cmd data
+  delayMicroseconds(5); //give the gumstix 5 us to respond (hopefully won't mess things up)
+  
   //set the throttle
   if(digitalRead(THROTTLE_INCDEC_PIN)){
     if(digitalRead(THROTTLE_RATE_PIN)){
