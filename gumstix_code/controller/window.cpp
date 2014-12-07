@@ -90,12 +90,14 @@ Window::Window()
 
 void Window::writeValues()
 {
+  
     QFile file("/dev/arduino_comms");
     //    QFile file("/users/mmd1080/Desktop/535project/sample2.txt");
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream out(&file);
-    out << "M " << this->leftRight << " " << this->frontBack << " " << this->upDown ;
+    out << "m " << this->leftRight << " " << this->frontBack << " " << this->upDown ;
     file.close();
+  
 }
 
 void Window::updateUpDown(int value)
