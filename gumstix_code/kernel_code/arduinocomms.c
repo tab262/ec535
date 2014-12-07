@@ -1,4 +1,10 @@
-/*Include the needed device drivers*/
+#define THROTTLE_INCDEC 29 //pin for throttle: use with INC or DEC
+#define THROTTLE_RATE 30 //pin for throttle rate: use with MULT5 or MULT1
+#define YAW_INCDEC 16 //pin for yaw: use with INC or DEC
+#define YAW_RATE 17 //pin for yaw rate: use with MULT5 or MULT1
+#define PITCH_INCDEC 117 //pin for pitch: use with INC or DEC
+#define PITCH_RATE 118 //pin for pitch rate: use with MULT5 or MULT1
+#define ARDUINO_CMD_REQ 31 //pin used by arduino to request new command/*Include the needed device drivers*/
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>     /* printk() */
@@ -40,16 +46,16 @@ int target_throttle = 0;
 #define MULT5 1               //increment/decrement by 5
 #define MULT1 0               //increment/decrement by 1
 
-#define THROTTLE_INCDEC 29    //pin for throttle:  use with INC or DEC
-#define THROTTLE_RATE 30      //pin for throttle rate:  use with MULT5 or MULT1
+#define THROTTLE_INCDEC 29 //pin for throttle: use with INC or DEC
+#define THROTTLE_RATE 30 //pin for throttle rate: use with MULT5 or MULT1
 
-#define YAW_INCDEC 16         //pin for yaw:  use with INC or DEC
-#define YAW_RATE 17           //pin for yaw rate:  use with MULT5 or MULT1
+#define YAW_INCDEC 16 //pin for yaw: use with INC or DEC
+#define YAW_RATE 17 //pin for yaw rate: use with MULT5 or MULT1
 
-#define PITCH_INCDEC 117      //pin for pitch:  use with INC or DEC
-#define PITCH_RATE 118        //pin for pitch rate:  use with MULT5 or MULT1
+#define PITCH_INCDEC 117 //pin for pitch: use with INC or DEC
+#define PITCH_RATE 118 //pin for pitch rate: use with MULT5 or MULT1
 
-#define ARDUINO_CMD_REQ 31    //pin used by arduino to request new command
+#define ARDUINO_CMD_REQ 31 //pin used by arduino to request new command
 
 #define DEBUG 0
 //========================================================================
@@ -114,9 +120,9 @@ static int arduino_comms_init(void){
 
      gpio_direction_input(ARDUINO_CMD_REQ);  //set pin used by arduino to request new command as input
      cmd_req_irq = IRQ_GPIO(ARDUINO_CMD_REQ);//get the irq number corresponding to the gpio_number
-     set_irq_type(cmd_req_irq, IRQT_RISING); //interupt triggered on rising edge (0 to 1 signal transition)
+     //set_irq_type(cmd_req_irq, IRQT_RISING); //interupt triggered on rising edge (0 to 1 signal transition)
      //register the gpio interrupt
-     result = request_irq(cmd_req_irq, &request_cmd_cb, SA_INTERRUPT, "arduino_intrupt", NULL);
+     result = request_irq(cmd_req_irq, &request_cmd_cb, SA_INTERRUPT | SA_TRIGGER_RISING, "arduino_intrupt", NULL);
      if(result != 0){
           printk(KERN_ALERT "Interupt for Arduino command requests not aquired\n");
           goto fail;
@@ -284,6 +290,8 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
                arduino_throttle--;
           }
      }
+     //printk(KERN_INFO "YAW: %d\t PITCH:  %d\t THROTTLE:  %d\n",
+     //	    arduino_yaw, arduino_pitch, arduino_throttle);
 }
 
 //------------------------------------------------------------------------
