@@ -4,6 +4,14 @@
 //comment this out to see the demodulated waveform
 //it is useful for debugging purpose.
 #define MODULATED 1
+const int MIN_THROTTLE = 0;
+const int MAX_THROTTLE = 255;
+const int MIN_YAW = -127;
+const int MAX_YAW = 127;
+const int MIN_PITCH = -127;
+const int MAX_PITCH = 127;
+
+
 int DELAY = 0; 
 const int IR_PIN = 3;
 const int GUMSTIX_PIN = 6;
@@ -201,18 +209,18 @@ void timerISR()
   
   //set the throttle
   if(digitalRead(THROTTLE_INCDEC_PIN)){
-    if(digitalRead(THROTTLE_RATE_PIN)){
+    if(digitalRead(THROTTLE_RATE_PIN) && throttle < (MAX_THROTTLE-5) ){
       throttle += 5;
     }
-    else{
+    else if(throttle < MAX_THROTTLE){
       throttle += 1;
     }
   }
   else{
-    if(digitalRead(THROTTLE_RATE_PIN)){
+    if(digitalRead(THROTTLE_RATE_PIN) && throttle > (MIN_THROTTLE+5)){
       throttle -= 5;
     }
-    else{
+    else if(throttle > MIN_THROTTLE){
       throttle -= 1;
     }
   }
