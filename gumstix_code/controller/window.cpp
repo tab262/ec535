@@ -129,17 +129,17 @@ void Window::createControls(const QString &title)
     maximumLabel = new QLabel(tr("Maximum value:"));
 
     valueLabel = new QLabel;
-    QString myString = QString("<font color='white'>Up/Down:</font>");
+    QString myString = QString("<font color='white'>Throttle:</font>");//was up/down
     valueLabel->setText(myString);
     valueLabel->setStyleSheet("background-color: #3498db;");
     valueLabel->setFont( font);
     valueLabel2 = new QLabel;
-    QString myString2 = QString("<font color='white'>Front/Back:</font>");
+    QString myString2 = QString("<font color='white'>Pitch:</font>");//was front/back
     valueLabel2->setText(myString2);
     valueLabel2->setStyleSheet("background-color: #3498db");
     valueLabel2->setFont( font);
     valueLabel3 = new QLabel;
-    QString myString3 = QString("<font color='white'>Left/Right:</font>");
+    QString myString3 = QString("<font color='white'>Yaw:</font>");//was left/right
     valueLabel3->setText(myString3);
     valueLabel3->setStyleSheet("background-color: #3498db");
     valueLabel3->setFont( font);
