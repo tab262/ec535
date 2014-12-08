@@ -87,8 +87,6 @@ irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs)
      return IRQ_HANDLED; //handler was correctly invoked and delt with
 }
 
-
-
 /* The init function called when module is installed */
 static int arduino_comms_init(void){
      int result;         //temp status var
@@ -206,7 +204,7 @@ static ssize_t arduino_comms_write(struct file *filp, const char *buf, size_t co
 
      if(mode == MANUAL){
           printk(KERN_INFO "MANUAL CONTROL\n");
-          transmit(target_yaw, target_pitch, target_throttle);
+          //transmit(target_yaw, target_pitch, target_throttle);
 
      }else if(mode == AUTO){
           printk(KERN_INFO "WARNING:  AUTOPILOT NOT YET IMPLEMENTED\n");
