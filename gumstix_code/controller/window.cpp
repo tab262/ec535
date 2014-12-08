@@ -23,6 +23,18 @@ Window::Window()
     verticalSliders3 = new SlidersGroup(Qt::Vertical, tr(""));
     verticalSliders3->tag = 2;
 
+    resetButton = new QPushButton(tr("Reset"));
+    QFont font;
+    font.setPointSize(20);
+    font.setBold(true);
+    resetButton->setFont(font);
+    resetButton->setStyleSheet("color: white;"
+                               "background-color: #4aa3df");
+    resetButtonWidget = new QStackedWidget;
+    resetButtonWidget->setStyleSheet("background-color: #3498db;"
+                                     "width: 60px;"
+                                     );
+    resetButtonWidget->addWidget(resetButton);
     stackedWidget = new QStackedWidget;
     stackedWidget->setStyleSheet("background-color: #3498db;"
                                  "width: 60px;"
@@ -42,6 +54,20 @@ Window::Window()
     stackedWidget3->addWidget(verticalSliders3);
 
     createControls(tr(""));
+
+    connect(resetButton, SIGNAL(pressed()), this, SLOT(reset()));
+//    connect(resetButton, SIGNAL(pressed()),
+//            verticalSliders, SLOT(setValue(int)));
+//    connect(resetButton, SIGNAL(pressed()),
+//            verticalSliders2, SLOT(setValue(int)));
+//    connect(resetButton, SIGNAL(pressed()),
+//            horizontalSliders3, SLOT(setValue(int)));
+//    connect(resetButton, SIGNAL(pressed()),
+//            valueSpinBox, SLOT(setValue(int)));
+//    connect(resetButton, SIGNAL(pressed()),
+//            valueSpinBox2, SLOT(setValue(int)));
+//    connect(resetButton, SIGNAL(pressed()),
+//            valueSpinBox3, SLOT(setValue(int)));
 
     connect(horizontalSliders, SIGNAL(valueChanged(int)),
             verticalSliders, SLOT(setValue(int)));
@@ -74,7 +100,8 @@ Window::Window()
     layout->addWidget(stackedWidget, 0, 0,Qt::AlignLeft);
     layout->addWidget(controlsGroup, 0, 1,Qt::AlignCenter);
     layout->addWidget(stackedWidget2, 0, 2,Qt::AlignRight);
-    layout->addWidget(stackedWidget3, 1, 1,Qt::AlignBottom);
+    layout->addWidget(stackedWidget3, 1, 1,1,2,Qt::AlignBottom);
+    layout->addWidget(resetButtonWidget, 1, 0,Qt::AlignBottom);
     setLayout(layout);
 
     minimumSpinBox->setValue(0);
@@ -96,6 +123,18 @@ void Window::writeValues()
     QTextStream out(&file);
     out << "m," << this->leftRight << "," << this->frontBack << "," << this->upDown ;
     file.close();
+}
+
+void Window::reset()
+{
+    int value = 0;
+    valueSpinBox->setValue(value);
+    valueSpinBox2->setValue(value);
+    valueSpinBox3->setValue(value);
+    this->upDown = value;
+    this->frontBack = value;
+    this->leftRight = value;
+    writeValues();
 }
 
 void Window::updateUpDown(int value)
@@ -129,17 +168,17 @@ void Window::createControls(const QString &title)
     maximumLabel = new QLabel(tr("Maximum value:"));
 
     valueLabel = new QLabel;
-    QString myString = QString("<font color='white'>Throttle:</font>");//was up/down
+    QString myString = QString("<font color='white'>Up/Down:</font>");
     valueLabel->setText(myString);
     valueLabel->setStyleSheet("background-color: #3498db;");
     valueLabel->setFont( font);
     valueLabel2 = new QLabel;
-    QString myString2 = QString("<font color='white'>Pitch:</font>");//was front/back
+    QString myString2 = QString("<font color='white'>Front/Back:</font>");
     valueLabel2->setText(myString2);
     valueLabel2->setStyleSheet("background-color: #3498db");
     valueLabel2->setFont( font);
     valueLabel3 = new QLabel;
-    QString myString3 = QString("<font color='white'>Yaw:</font>");//was left/right
+    QString myString3 = QString("<font color='white'>Left/Right:</font>");
     valueLabel3->setText(myString3);
     valueLabel3->setStyleSheet("background-color: #3498db");
     valueLabel3->setFont( font);
