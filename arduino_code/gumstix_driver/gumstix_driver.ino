@@ -206,10 +206,11 @@ void timerISR()
   
   digitalWrite(GUMSTIX_PIN, HIGH); //request new cmd data
   delayMicroseconds(10); //give the gumstix 5 us to respond (hopefully won't mess things up)
+  int D = 4;
   
   //set the throttle
   if(digitalRead(THROTTLE_INCDEC_PIN)){
-    if(digitalRead(THROTTLE_RATE_PIN) && throttle < (MAX_THROTTLE-5) ){
+    if(digitalRead(THROTTLE_RATE_PIN) && throttle < (MAX_THROTTLE-D) ){
       throttle += 5;
     }
     else if(throttle < MAX_THROTTLE){
@@ -217,7 +218,7 @@ void timerISR()
     }
   }
   else{
-    if(digitalRead(THROTTLE_RATE_PIN) && throttle > (MIN_THROTTLE+5)){
+    if(digitalRead(THROTTLE_RATE_PIN) && throttle > (MIN_THROTTLE+D)){
       throttle -= 5;
     }
     else if(throttle > MIN_THROTTLE){
@@ -227,41 +228,41 @@ void timerISR()
 
   //set the pitch
   if(digitalRead(PITCH_INCDEC_PIN)){
-    if(digitalRead(PITCH_RATE_PIN)){
+    if(digitalRead(PITCH_RATE_PIN) && pitch < (MAX_PITCH-D)){
       pitch += 5;
     }
-    else{
+    else if(pitch < MAX_PITCH){
       pitch += 1;
     }
   }
   else{
-    if(digitalRead(PITCH_RATE_PIN)){
+    if(digitalRead(PITCH_RATE_PIN) && pitch > (MIN_PITCH+D) ){
       pitch -= 5;
     }
-    else{
+    else if(pitch > MIN_PITCH){
       pitch -= 1;
     }
   }
 
   //set the yaw
   if(digitalRead(YAW_INCDEC_PIN)){
-    if(digitalRead(YAW_RATE_PIN)){
+    if(digitalRead(YAW_RATE_PIN) && yaw < (MAX_YAW-D)){
       yaw += 5;
     }
-    else{
+    else if(yaw < MAX_YAW){
       yaw += 1;
     }
   }
   else{
-    if(digitalRead(YAW_RATE_PIN)){
+    if(digitalRead(YAW_RATE_PIN) && yaw > (MIN_YAW+D)){
       yaw -= 5;
     }
-    else{
+    else if(yaw > MIN_YAW){
       yaw -= 1;
     }
   }
 
-  digitalWrite(GUMSTIX_PIN, LOW); //request new cmd data
+  digitalWrite(GUMSTIX_PIN, LOW); 
 
   sendCommand(throttle, yaw, pitch);
   //Serial.println("TIMER");
