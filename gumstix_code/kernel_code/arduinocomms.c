@@ -64,6 +64,7 @@ static ssize_t arduino_comms_proc_read(char *page, char **page_location, off_t o
 //static ssize_t write_2_proc(struct file *filp, const char __user *buff, unsigned long len, void *data);
 //irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs);
 void transmit(int new_pitch, int new_yaw, int new_throttle);
+void simple_transmit(int new_pitch, int new_yaw, int new_throttle);
 
 /* Declaration of init and exit functions */
 module_init(arduino_comms_init);
@@ -193,25 +194,26 @@ static ssize_t arduino_comms_write(struct file *filp, const char *buf, size_t co
      //bring from user space to kernel space
      if(copy_from_user(msgptr + *f_pos, buf, count)) return -EFAULT;
 
-     printk(KERN_INFO "MESSAGE:  %s\n", message);
+     //printk(KERN_INFO "MESSAGE:  %s\n", message);
 
      //parse the message
      sscanf(message, "%c,%d,%d,%d\n", &mode, &target_yaw,
                &target_pitch, &target_throttle);
 
+     /*
      printk(KERN_INFO "MODE:  %c\n", mode);
      printk(KERN_INFO "YAW:  %d\n", target_yaw);
      printk(KERN_INFO "PITCH:  %d\n", target_pitch);
      printk(KERN_INFO "THROTTLE:  %d\n", target_throttle);
-
+     */
      if(mode == MANUAL){
-          printk(KERN_INFO "MANUAL CONTROL\n");
-          //transmit(target_yaw, target_pitch, target_throttle);
+       //printk(KERN_INFO "MANUAL CONTROL\n");
+       //transmit(target_yaw, target_pitch, target_throttle);
 
      }else if(mode == AUTO){
-          printk(KERN_INFO "WARNING:  AUTOPILOT NOT YET IMPLEMENTED\n");
+	  simple_transmit(target_yaw, target_pitch, target_throttle);
      }else{
-          printk(KERN_INFO "ERROR:  MODE SPECIFIER NOT RECOGNIZED\n");
+       //printk(KERN_INFO "ERROR:  MODE SPECIFIER NOT RECOGNIZED\n");
      }
      return count;
 }
@@ -305,3 +307,46 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
 //------------------------------------------------------------------------
 /* Callback function for when the ARUINO_CMD_REG pin goes high*/
 
+
+void simple_transmit(int new_pitch, int new_yaw, int new_throttle)
+{
+  //printk("SIMPLE TRANSMIT\n");
+  
+  gpio_set_value(THROTTLE_RATE, MULT5);
+  gpio_set_value(YAW_RATE, MULT5);
+
+  if(new_throttle){
+    gpio_set_value(THROTTLE_INCDEC, INC);
+  }else{
+    gpio_set_value(THROTTLE_INCDEC, DEC);
+  }
+
+  if(new_yaw){
+    gpio_set_value(YAW_INCDEC, INC);
+  }else{
+    gpio_set_value(YAW_INCDEC, DEC);
+  }
+  
+
+  int diff_pitch = new_pitch - arduino_pitch;
+     
+  if(diff_pitch >=  0){
+    gpio_set_value(PITCH_INCDEC, INC);
+    if(diff_pitch >= 5){
+      gpio_set_value(PITCH_RATE, MULT5);
+      arduino_pitch += 5;
+    }else{
+      gpio_set_value(PITCH_RATE, MULT1);
+      arduino_pitch += 1;
+    }
+  }else if(diff_pitch < 0){
+    gpio_set_value(PITCH_INCDEC, DEC);
+    if(diff_pitch <= -5){
+      gpio_set_value(PITCH_RATE, MULT5);
+      arduino_pitch -= 5;
+    }else{
+      gpio_set_value(PITCH_RATE, MULT1);
+      arduino_pitch--;
+    }
+  }
+}
