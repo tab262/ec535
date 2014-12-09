@@ -45,7 +45,7 @@ void draw()
   fill(255,0,0);
   ellipse(closestX,closestY,15,15);
   println(closestX + ", " + closestY + ", " + closestValue);
-  String values = str(closestX) + " " + str(closestY) + " " + str(closestValue) + "\n";
+  String values = str(closestY) + "\n";
   bluetoothPort.write(values);
   
   
