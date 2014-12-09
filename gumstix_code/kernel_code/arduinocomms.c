@@ -206,7 +206,7 @@ static ssize_t arduino_comms_write(struct file *filp, const char *buf, size_t co
 
      if(mode == MANUAL){
           printk(KERN_INFO "MANUAL CONTROL\n");
-          transmit(target_yaw, target_pitch, target_throttle);
+          //transmit(target_yaw, target_pitch, target_throttle);
 
      }else if(mode == AUTO){
           printk(KERN_INFO "WARNING:  AUTOPILOT NOT YET IMPLEMENTED\n");
@@ -304,3 +304,4 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
 
 //------------------------------------------------------------------------
 /* Callback function for when the ARUINO_CMD_REG pin goes high*/
+
