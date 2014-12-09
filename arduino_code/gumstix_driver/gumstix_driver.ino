@@ -5,7 +5,7 @@
 //it is useful for debugging purpose.
 #define MODULATED 1
 const int MIN_THROTTLE = 0;
-const int MAX_THROTTLE = 255;
+const int MAX_THROTTLE = 127;
 const int MIN_YAW = -127;
 const int MAX_YAW = 127;
 const int MIN_PITCH = -127;
