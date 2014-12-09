@@ -42,11 +42,11 @@ int target_throttle = 0;
 #define THROTTLE_INCDEC 29 //pin for throttle: use with INC or DEC
 #define THROTTLE_RATE 30 //pin for throttle rate: use with MULT5 or MULT1
 
-#define YAW_INCDEC 101 //pin for yaw: use with INC or DEC
-#define YAW_RATE 17 //pin for yaw rate: use with MULT5 or MULT1
+#define YAW_INCDEC 113 //101 //pin for yaw: use with INC or DEC
+#define YAW_RATE 28 //17 //pin for yaw rate: use with MULT5 or MULT1
 
-#define PITCH_INCDEC 113 //pin for pitch: use with INC or DEC
-#define PITCH_RATE 28 //pin for pitch rate: use with MULT5 or MULT1
+#define PITCH_INCDEC 101 //113 //pin for pitch: use with INC or DEC
+#define PITCH_RATE 17 //28 //pin for pitch rate: use with MULT5 or MULT1
 
 #define ARDUINO_CMD_REQ 31 //pin used by arduino to request new command
 
@@ -86,6 +86,8 @@ irqreturn_t request_cmd_cb(int irq, void *dev_id, struct pt_regs *regs)
      transmit(target_yaw, target_pitch, target_throttle);
      return IRQ_HANDLED; //handler was correctly invoked and delt with
 }
+
+
 
 /* The init function called when module is installed */
 static int arduino_comms_init(void){
@@ -204,7 +206,7 @@ static ssize_t arduino_comms_write(struct file *filp, const char *buf, size_t co
 
      if(mode == MANUAL){
           printk(KERN_INFO "MANUAL CONTROL\n");
-          //transmit(target_yaw, target_pitch, target_throttle);
+          transmit(target_yaw, target_pitch, target_throttle);
 
      }else if(mode == AUTO){
           printk(KERN_INFO "WARNING:  AUTOPILOT NOT YET IMPLEMENTED\n");
@@ -302,4 +304,3 @@ void transmit(int new_pitch, int new_yaw, int new_throttle)
 
 //------------------------------------------------------------------------
 /* Callback function for when the ARUINO_CMD_REG pin goes high*/
-
