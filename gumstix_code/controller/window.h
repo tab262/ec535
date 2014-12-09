@@ -9,7 +9,7 @@ class QGroupBox;
 class QLabel;
 class QSpinBox;
 class QStackedWidget;
-
+class QPushButton;
 class SlidersGroup;
 
 class Window : public QWidget
@@ -23,6 +23,7 @@ public slots:
     void updateUpDown(int value);
     void updateFrontBack(int value);
     void updateLeftRight(int value);
+    void reset();
 
 private:
     void createControls(const QString &title);
@@ -41,6 +42,8 @@ private:
     SlidersGroup *horizontalSliders3;
     SlidersGroup *verticalSliders3;
     QStackedWidget *stackedWidget3;
+    QPushButton * resetButton;
+    QStackedWidget *resetButtonWidget;
 
     QGroupBox *controlsGroup;
     QLabel *minimumLabel;
