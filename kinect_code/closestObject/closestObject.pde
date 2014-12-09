@@ -17,10 +17,10 @@ void setup()
   kinect = new SimpleOpenNI(this);
   kinect.enableDepth();
   smooth();
-  
-  String portName = Serial.list()[5];
+  println(Serial.list());
+  String portName = Serial.list()[6];
   println(portName);
-  bluetoothPort = new Serial(this,portName,115200);
+  bluetoothPort = new Serial(this,portName,9600);
 }
 
 void draw()
@@ -45,7 +45,7 @@ void draw()
   fill(255,0,0);
   ellipse(closestX,closestY,15,15);
   println(closestX + ", " + closestY + ", " + closestValue);
-  String values = str(closestY) + "\n";
+  String values = str(closestX) + "," + str(HEIGHT - closestY) +  "\n";
   bluetoothPort.write(values);
   
   
