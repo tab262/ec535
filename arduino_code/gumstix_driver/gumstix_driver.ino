@@ -4,7 +4,9 @@
 //comment this out to see the demodulated waveform
 //it is useful for debugging purpose.
 #define MODULATED 1
-const int MIN_THROTTLE = 0;
+#define KINECT_MODE 1
+
+
 const int MAX_THROTTLE = 127;
 const int MIN_YAW = -127;
 const int MAX_YAW = 127;
@@ -12,7 +14,8 @@ const int MIN_PITCH = -127;
 const int MAX_PITCH = 127;
 
 
-int DELAY = 0; 
+int DELAY = 0;
+
 const int IR_PIN = 3;
 const int GUMSTIX_PIN = 6;
 
@@ -33,6 +36,15 @@ const int ZERO_LOW_DURATION = 220;
 const int ONE_LOW_DURATION = 600;
 const byte ROTATION_STATIONARY = 60;
 const byte CAL_BYTE = 52;
+
+int throttle_lock = 0;
+int pitch_lock = 0;
+int yaw_lock = 0;
+
+int MIN_THROTTLE = 0;
+
+
+
 
 //cmd variables
 int throttle, yaw, pitch;
@@ -172,6 +184,20 @@ void setup()
   pitch = 0;
   yaw = 0;
 
+  // Check if running in kinect mode
+  if(KINECT_MODE){
+    yaw_lock = 1;
+    pitch_lock = 1;  
+  }
+  
+  if(KINECT_MODE){
+    MIN_THROTTLE = 30;
+    throttle = 30;
+  }else{
+   MIN_THROTTLE = 0;
+     
+  }
+  
   //setup interrupt interval: 180ms 
   Timer1.initialize(DURATION);
   Timer1.attachInterrupt(timerISR);
@@ -204,65 +230,81 @@ void timerISR()
    0 = Times 1 Multiplier
    */
   
-  digitalWrite(GUMSTIX_PIN, HIGH); //request new cmd data
-  delayMicroseconds(10); //give the gumstix 5 us to respond (hopefully won't mess things up)
+  if(!KINECT_MODE){
+    digitalWrite(GUMSTIX_PIN, HIGH); //request new cmd dat
+    delayMicroseconds(10); //give the gumstix 5 us to respond (hopefully won't mess things up) 
+  }
+  
   int D = 4;
   
-  //set the throttle
-  if(digitalRead(THROTTLE_INCDEC_PIN)){
-    if(digitalRead(THROTTLE_RATE_PIN) && throttle < (MAX_THROTTLE-D) ){
-      throttle += 5;
+  if(!throttle_lock){
+    //set the throttle
+    if(digitalRead(THROTTLE_INCDEC_PIN)){
+      if(digitalRead(THROTTLE_RATE_PIN) && throttle < (MAX_THROTTLE-D) ){
+        throttle += 5;
+      }
+      else if(throttle < MAX_THROTTLE){
+        throttle += 2;
+      }
     }
-    else if(throttle < MAX_THROTTLE){
-      throttle += 1;
-    }
-  }
-  else{
-    if(digitalRead(THROTTLE_RATE_PIN) && throttle > (MIN_THROTTLE+D)){
-      throttle -= 5;
-    }
-    else if(throttle > MIN_THROTTLE){
-      throttle -= 1;
-    }
-  }
-
-  //set the pitch
-  if(digitalRead(PITCH_INCDEC_PIN)){
-    if(digitalRead(PITCH_RATE_PIN) && pitch < (MAX_PITCH-D)){
-      pitch += 5;
-    }
-    else if(pitch < MAX_PITCH){
-      pitch += 1;
-    }
-  }
-  else{
-    if(digitalRead(PITCH_RATE_PIN) && pitch > (MIN_PITCH+D) ){
-      pitch -= 5;
-    }
-    else if(pitch > MIN_PITCH){
-      pitch -= 1;
+    else{
+      if(digitalRead(THROTTLE_RATE_PIN) && throttle > (MIN_THROTTLE+D)){
+        if(KINECT_MODE){
+          throttle -= 1;
+        }else{
+          throttle -= 5;
+        }
+      }
+      else if(throttle > MIN_THROTTLE){
+        throttle -= 2;
+      }
     }
   }
 
-  //set the yaw
-  if(digitalRead(YAW_INCDEC_PIN)){
-    if(digitalRead(YAW_RATE_PIN) && yaw < (MAX_YAW-D)){
-      yaw += 5;
+  if(!pitch_lock){
+    //set the pitch
+    if(digitalRead(PITCH_INCDEC_PIN)){
+      if(digitalRead(PITCH_RATE_PIN) && pitch < (MAX_PITCH-D)){
+        pitch += 5;
+      }
+      else if(pitch < MAX_PITCH){
+        pitch += 1;
+      }
     }
-    else if(yaw < MAX_YAW){
-      yaw += 1;
+    else{
+      if(digitalRead(PITCH_RATE_PIN) && pitch > (MIN_PITCH+D) ){
+        pitch -= 5;
+      }
+      else if(pitch > MIN_PITCH){
+        pitch -= 1;
+      }
     }
   }
-  else{
-    if(digitalRead(YAW_RATE_PIN) && yaw > (MIN_YAW+D)){
-      yaw -= 5;
+  
+  if(!yaw_lock){
+    //set the yaw
+    if(digitalRead(YAW_INCDEC_PIN)){
+      if(digitalRead(YAW_RATE_PIN) && yaw < (MAX_YAW-D)){
+        yaw += 5;
+      }
+      else if(yaw < MAX_YAW){
+        yaw += 1;
+      }
     }
-    else if(yaw > MIN_YAW){
-      yaw -= 1;
+    else{
+      if(digitalRead(YAW_RATE_PIN) && yaw > (MIN_YAW+D)){
+        yaw -= 5;
+      }
+      else if(yaw > MIN_YAW){
+        yaw -= 1;
+      }
     }
   }
-
-  digitalWrite(GUMSTIX_PIN, LOW); 
+  
+  
+  if(!KINECT_MODE){
+    digitalWrite(GUMSTIX_PIN, LOW); 
+  }
 
   sendCommand(throttle, yaw, pitch);
   //Serial.println("TIMER");
