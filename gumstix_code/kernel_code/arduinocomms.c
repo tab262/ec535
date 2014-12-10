@@ -45,8 +45,8 @@ int target_throttle = 0;
 #define YAW_INCDEC 113 //101 //pin for yaw: use with INC or DEC
 #define YAW_RATE 28 //17 //pin for yaw rate: use with MULT5 or MULT1
 
-#define PITCH_INCDEC 101 //113 //pin for pitch: use with INC or DEC
-#define PITCH_RATE 17 //28 //pin for pitch rate: use with MULT5 or MULT1
+#define PITCH_INCDEC 46 //101 //113 //pin for pitch: use with INC or DEC
+#define PITCH_RATE 47 //17 //28 //pin for pitch rate: use with MULT5 or MULT1
 
 #define ARDUINO_CMD_REQ 31 //pin used by arduino to request new command
 
@@ -209,7 +209,6 @@ static ssize_t arduino_comms_write(struct file *filp, const char *buf, size_t co
      if(mode == MANUAL){
        //printk(KERN_INFO "MANUAL CONTROL\n");
        //transmit(target_yaw, target_pitch, target_throttle);
-
      }else if(mode == AUTO){
 	  simple_transmit(target_yaw, target_pitch, target_throttle);
      }else{
@@ -312,15 +311,21 @@ void simple_transmit(int new_pitch, int new_yaw, int new_throttle)
 {
   //printk("SIMPLE TRANSMIT\n");
   
-  gpio_set_value(THROTTLE_RATE, MULT5);
-  gpio_set_value(YAW_RATE, MULT5);
+  
+
 
   if(new_throttle){
+    gpio_set_value(THROTTLE_RATE, MULT1);
     gpio_set_value(THROTTLE_INCDEC, INC);
   }else{
+    gpio_set_value(THROTTLE_RATE, MULT5);
     gpio_set_value(THROTTLE_INCDEC, DEC);
   }
 
+
+
+
+  gpio_set_value(YAW_RATE, MULT5); 
   if(new_yaw){
     gpio_set_value(YAW_INCDEC, INC);
   }else{
