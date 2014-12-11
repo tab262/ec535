@@ -57,21 +57,18 @@ int main(int argc, char **argv)
 
 
   
-  while(i++ < 1000){
+  while(i++ < 10000){
     //fgets(buffer,sizeof(buffer),pFile);
     int result = fscanf(pFile,"%d,%d",&x,&y);
     if(result > 0){
           
       if(DEBUG) printf("x,y: %d,%d\n", x,y);
-      if(y < (Y_NEUTRAL-20)){
-	inc = 0;
-	if(DEBUG)printf("Throttle: Decrease--");
-      }else if (y > (Y_NEUTRAL + 20)){
+      if(y < (Y_NEUTRAL-100)){
 	inc = 1;
+	if(DEBUG)printf("Throttle: Decrease--");
+      }else {
+	inc = 0;
 	if(DEBUG)printf("Throttle: Increase--");
-      }else{
-	inc = -1;
-	if(DEBUG)printf("Throttle: No change--");
       }
 
       if(x < (X_NEUTRAL-20)){
@@ -101,4 +98,3 @@ int main(int argc, char **argv)
   
   return 0;
 }
-
