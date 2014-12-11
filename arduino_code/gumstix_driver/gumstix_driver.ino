@@ -1,3 +1,7 @@
+/*
+Modified from http://www.kerrywong.com/2012/08/27/reverse-engineering-the-syma-s107g-ir-protocol/ great post and
+code on reverse engineering Syma S107G 3.5 Channel RC Helicopter communication protocol
+*/
 #include <TimerOne.h>
 
 
