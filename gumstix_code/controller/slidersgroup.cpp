@@ -9,6 +9,7 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
     slider = new QSlider(orientation);
 
     if (orientation == Qt::Horizontal)
+        //This will be used for the yaw slider
         slider->setStyleSheet(
                     "QSlider::handle:orientation {"
                     "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #dde4e6, stop:1 #ecf0f1);"
@@ -26,6 +27,7 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
                     "margin: 0 0 0 0;}"
                     );
     else
+        //This will be used for throttle & pitch sliders
         slider->setStyleSheet(
                     "QSlider::handle:orientation {"
                     "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #dde4e6, stop:1 #ecf0f1);"
@@ -39,7 +41,7 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
                     "border: 1px solid #999999;"
                     "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4aa3df, stop:1 #5faee3);"
                     "height: 150px;"
-            //"width: 60px;"
+                    //"width: 60px;"
                     "margin: 0 0 0 0;}"
                     );
 
@@ -75,14 +77,4 @@ void SlidersGroup::setMinimum(int value)
 void SlidersGroup::setMaximum(int value)
 {
     slider->setMaximum(value);
-}
-
-void SlidersGroup::invertAppearance(bool invert)
-{
-    slider->setInvertedAppearance(invert);
-}
-
-void SlidersGroup::invertKeyBindings(bool invert)
-{
-    slider->setInvertedControls(invert);
 }
