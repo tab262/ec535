@@ -11,6 +11,14 @@
 ---------------------------------------------------------------------------------------
 
                             ######## Kinect ########
+The Kinect portion of the program have the following requirements:
+1. Processing: https://processing.org/
+2. Installing SimpleOpenNI (requires root access): https://code.google.com/p/simple-openni/wiki/Installation
+
+Once these items are install, you can use the Processing IDE to load the kinect_code/closestObject/closest_object_tracker.pde file. Assuming the Bluetooth connection is already setup, the setup() function in the program needs to find the proper serial port to write to. As of this writing, it is currently hardcoded. If you run the program, will print the list of ports on your machine you and you will have to change line 21 to specify the proper port to write to. 
+
+NOTE: It is best to have the Gumstix user level program running before running the Processing program.
+
 
                             ######## Gumstix ########
 
