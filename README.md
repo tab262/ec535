@@ -23,7 +23,7 @@ NOTE: It is best to have the Gumstix user level program running before running t
                             ######## Gumstix ########
 
                                 **** User ****
-To run the user level program a Bluetooth connection between the Gumstix and PC with the Kinect must already be established. The user will run the /gumstix_code/bluetooth/rfcomm_list executable before running the Processing program. This allows for the user level program hold in a loop while you setup the Processing program on the PC.
+To run the user level program a Bluetooth connection between the Gumstix and PC with the Kinect must already be established and bound to /dev/rfcomm0. The user will run the /gumstix_code/bluetooth/rfcomm_list executable before running the Processing program. This allows for the user level program hold in a loop while you setup the Processing program on the PC.
 
                                 **** Kernel ****
 
