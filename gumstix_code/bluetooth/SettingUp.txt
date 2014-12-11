@@ -1,9 +1,0 @@
-
-The gumstix is hardwired to connected to the computer of interest in the file:
-
-The pincode for that computer is set to 1234 in the file:
-
-To enable writing from the computer to Gumstix - you need to use rfcomm ...
-
-To read from the Bluetooth on Gumstix - you can have the user-level program do a readline given we have the 
-computer write lines with newlines.
