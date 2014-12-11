@@ -23,6 +23,7 @@ NOTE: It is best to have the Gumstix user level program running before running t
                             ######## Gumstix ########
 
                                 **** User ****
+To run the user level program a Bluetooth connection between the Gumstix and PC with the Kinect must already be established. The user will run the /gumstix_code/bluetooth/rfcomm_list executable before running the Processing program. This allows for the user level program hold in a loop while you setup the Processing program on the PC.
 
                                 **** Kernel ****
 
@@ -46,6 +47,16 @@ You can now run the binary (./controller -qws). If needed, calibrate the touchsc
                                 **** Driver ****
 
                                 **** Circuit ****
+See https://github.com/tab262/ec535/blob/master/ArduinoCircuit.png for diagram of circuit. Pins to connect between the Arduion and Gumstix are as follows:
+
+Arduino   |    Gumstix
+13        |    29
+12        |    30
+11        |    101 
+10        |    17  
+9         |    113 
+8         |    28  
+6         |    31
 
 
 
