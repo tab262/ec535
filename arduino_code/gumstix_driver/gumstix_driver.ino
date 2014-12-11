@@ -4,7 +4,7 @@
 //comment this out to see the demodulated waveform
 //it is useful for debugging purpose.
 #define MODULATED 1
-#define KINECT_MODE 1
+#define KINECT_MODE 0
 
 
 const int MAX_THROTTLE = 127;
