@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv)
 {
-  printf("Waiting for connection to open...\n");
+  
   char buffer[256];
   buffer[0] = 'x';
   FILE * pFile;
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
   }else{
     printf("Kernel opened\n");
   }
-
+  printf("Waiting for connection to open...\n");
   do{
     //printf("Opening rfcomms...\n");
     pFile = fopen("/dev/rfcomm0", "r");
