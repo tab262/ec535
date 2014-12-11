@@ -36,31 +36,33 @@ private:
     SlidersGroup *horizontalSliders;
     SlidersGroup *verticalSliders;
     QStackedWidget *stackedWidget;
+
     SlidersGroup *horizontalSliders2;
     SlidersGroup *verticalSliders2;
     QStackedWidget *stackedWidget2;
+
     SlidersGroup *horizontalSliders3;
     SlidersGroup *verticalSliders3;
     QStackedWidget *stackedWidget3;
+
     QPushButton * resetButton;
     QStackedWidget *resetButtonWidget;
 
     QGroupBox *controlsGroup;
-    QLabel *minimumLabel;
-    QLabel *maximumLabel;
-    QLabel *valueLabel;
-    QLabel *valueLabel2;
-    QLabel *valueLabel3;
-    QCheckBox *invertedAppearance;
-    QCheckBox *invertedKeyBindings;
+    QComboBox *orientationCombo;
     QSpinBox *maximumSpinBox;
     QSpinBox *minimumSpinBox;
     QSpinBox *maximumSpinBox2;
     QSpinBox *minimumSpinBox2;
+
+    QLabel *valueLabel;
     QSpinBox *valueSpinBox;
+
+    QLabel *valueLabel2;
     QSpinBox *valueSpinBox2;
+
+    QLabel *valueLabel3;
     QSpinBox *valueSpinBox3;
-    QComboBox *orientationCombo;
 };
 
 #endif
