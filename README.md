@@ -66,6 +66,7 @@ You can now run the binary (./controller -qws). If needed, calibrate the touchsc
 See https://github.com/tab262/ec535/blob/master/ArduinoCircuit.png for diagram of circuit. Pins to connect between the Arduion and Gumstix are as follows:
 
 Arduino   |    Gumstix
+
 13        |    29
 
 12        |    30
