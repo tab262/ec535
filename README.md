@@ -67,11 +67,17 @@ See https://github.com/tab262/ec535/blob/master/ArduinoCircuit.png for diagram o
 
 Arduino   |    Gumstix
 13        |    29
+
 12        |    30
+
 11        |    101 
+
 10        |    17  
+
 9         |    113 
+
 8         |    28  
+
 6         |    31
 
 
